@@ -5,6 +5,7 @@
 #include <vector>
 #include <fstream>
 #include <string>
+#include <map>
 
 struct Point {
 
@@ -60,13 +61,55 @@ void extractPointData(std::vector<Point>& pData, std::string input)
     }
 }
 
+bool runSim(std::vector<Point>& points, uint16_t& t)
+{
+    bool ret = false; // Return value.
+    t++; // Increase number of simulations done.
+    uint16_t pointsWithAdjacentNeighbors = 0;
+    std::map<std::pair<int32_t, int32_t>, bool> tempMap;
+
+    // Move all points.
+    for (uint16_t i = 0; i < points.size(); i++)
+    {
+        points[i].update();
+        tempMap[std::make_pair(points[i].x, points[i].y)] = 1; // Map used so that only one loop is needed in next step.
+    }
+
+    // Check if current point has at least one adjacent neighbor.
+    for (uint32_t i = 0; i < points.size(); i++)
+    {
+        if ((tempMap[std::make_pair(points[i].x - 1, points[i].y)] == 1) || // Left.
+            (tempMap[std::make_pair(points[i].x + 1, points[i].y)] == 1) || // Right.
+            (tempMap[std::make_pair(points[i].x, points[i].y - 1)] == 1) || // Up.
+            (tempMap[std::make_pair(points[i].x, points[i].y + 1)] == 1) || // Down.
+            (tempMap[std::make_pair(points[i].x - 1, points[i].y - 1)] == 1) || // Up left.
+            (tempMap[std::make_pair(points[i].x - 1, points[i].y + 1)] == 1) || // Up right.
+            (tempMap[std::make_pair(points[i].x + 1, points[i].y - 1)] == 1) || // Down left.
+            (tempMap[std::make_pair(points[i].x + 1, points[i].y + 1)] == 1))   // Down right.
+        {
+            pointsWithAdjacentNeighbors++;
+        }
+    }
+
+    if (pointsWithAdjacentNeighbors == points.size())
+        ret = true;
+
+    return ret;
+}
+
 int main()
 {
-    // Data container.
-    std::vector<Point> pArr;
+    std::vector<Point> pArr; // Data container.
+    uint16_t ticks = 0;      // Tick counter.
 
     // Extract relevant data.
     extractPointData(pArr, "indata.txt");
+
+    // Run simulation until all points has at least one adjacent neighbour.
+    while (!runSim(pArr, ticks)) {}
+
+    // Print simulations needed.
+    std::cout << "Ticks needed: " << ticks;
 }
 
 // Run program: Ctrl + F5 or Debug > Start Without Debugging menu
