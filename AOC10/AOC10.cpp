@@ -61,6 +61,53 @@ void extractPointData(std::vector<Point>& pData, std::string input)
     }
 }
 
+void getDimensions(std::vector<Point>& points, int32_t& min_x, int32_t& max_x, int32_t& min_y, int32_t& max_y)
+{
+
+    for (uint32_t i = 0; i < points.size(); i++)
+    {
+        if (points[i].x > max_x)
+            max_x = points[i].x; // Store max x.
+        if (points[i].x < min_x)
+            min_x = points[i].x; // Store min x.
+        if (points[i].y > max_y)
+            max_y = points[i].y; // Store max y.
+        if (points[i].y < min_y)
+            min_y = points[i].y; // Store min y.
+    }
+}
+
+void printData(std::vector<Point>& points)
+{
+    int32_t min_x = 100000, max_x = 0, min_y = 100000, max_y = 0;
+    getDimensions(points, min_x, max_x, min_y, max_y);
+
+    for (int16_t y = min_y; y <= max_y; y++) // Loop row.
+    {
+        for (int16_t x = min_x; x <= max_x; x++) // Loop column.
+        {
+            bool print = false;
+            for (uint32_t i = 0; i < points.size(); i++) // Loop points.
+            {
+                if ((x == points[i].x) && (y == points[i].y)) // Check if point exists at this printing coordinate.
+                {
+                    print = true;
+                }
+            }
+            if (print)
+            {
+                std::cout << "# "; // Print point.
+            }
+            else
+            {
+                std::cout << ". "; // Print no point.
+            }
+        }
+        std::cout << "\n";
+    }
+    std::cout << "\n";
+}
+
 bool runSim(std::vector<Point>& points, uint16_t& t)
 {
     bool ret = false; // Return value.
@@ -107,6 +154,9 @@ int main()
 
     // Run simulation until all points has at least one adjacent neighbour.
     while (!runSim(pArr, ticks)) {}
+
+    // Print result.
+    printData(pArr);
 
     // Print simulations needed.
     std::cout << "Ticks needed: " << ticks;
