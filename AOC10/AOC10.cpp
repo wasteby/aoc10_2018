@@ -2,10 +2,71 @@
 //
 
 #include <iostream>
+#include <vector>
+#include <fstream>
+#include <string>
+
+struct Point {
+
+    int32_t x, y, vel_x, vel_y;
+    void init(int32_t xi, int32_t yi, int8_t vel_xi, int8_t vel_yi)
+    {
+        x = xi; y = yi;
+        vel_x = vel_xi; vel_y = vel_yi;
+    }
+    void update()
+    {
+        x += vel_x;
+        y += vel_y;
+    }
+};
+
+void extractPointData(std::vector<Point>& pData, std::string input)
+{
+    std::string str;
+    std::vector<int32_t> pointData;
+
+    std::ifstream file(input);
+
+    if (!file)
+    {
+        std::cout << "Error in opening indata file!" << std::endl;
+    }
+
+    while (std::getline(file, str))
+    {
+        if (!str.empty())
+        {
+            std::string numStr = "";
+            pointData.clear();
+
+            for (uint8_t i = 0; i < str.size(); i++)
+            {
+                if ((str[i] >= '0' && str[i] <= '9') || str[i] == '-') // Start of number.
+                {
+                    numStr += str[i];
+                }
+                else if ((str[i] == ',') || (str[i] == '>')) // End of number.
+                {
+                    int32_t number = std::stoi(numStr);
+                    pointData.push_back(number);
+                    numStr.erase();
+                }
+            }
+            Point p;
+            p.init(pointData[0], pointData[1], pointData[2], pointData[3]);
+            pData.push_back(p);
+        }
+    }
+}
 
 int main()
 {
-    std::cout << "Hello World!\n";
+    // Data container.
+    std::vector<Point> pArr;
+
+    // Extract relevant data.
+    extractPointData(pArr, "indata.txt");
 }
 
 // Run program: Ctrl + F5 or Debug > Start Without Debugging menu
